@@ -1,0 +1,126 @@
+import { Canvas } from "@react-three/fiber";
+import StudioLights from "./three/StudioLights.jsx";
+import { features } from "../../constants";
+import clsx from "clsx";
+import { useRef } from "react";
+import { Suspense } from "react";
+import { Html } from "@react-three/drei";
+import { useMediaQuery } from "react-responsive";
+import MacbookModel from "./models/Macbook.jsx";
+import useMacbookStore from "../../store/index.js";
+import { featureSequence } from "../../constants";
+import { useEffect } from "react";
+import { useGSAP } from "@gsap/react";
+import { gsap } from "gsap";
+
+const ModelScroll = () => {
+  const groupRef = useRef(null);
+  const isMobile = useMediaQuery({ query: "(max-width: 1024px)" });
+  const { setTexture } = useMacbookStore()
+
+  useEffect(() => {
+    featureSequence.forEach((feature)=> {
+      const v = document.createElement('video')
+
+      Object.assign(v, {
+        src: feature.videoPath,
+        loop: true,
+        muted: true,
+        playsInline: true,
+        preload: 'auto',
+        crossOrigin: 'anonymous'
+      });
+      v.load()  
+    }) 
+  }
+)
+
+// === Animation du modèle et du contenu ===
+useGSAP(() => {
+  // Timeline du modèle
+  const modelTimeline = gsap.timeline({
+    scrollTrigger: {
+      trigger: "#f-canvas",
+      start: "top center",
+      end: "bottom top",
+      scrub: 1,
+    },
+  });
+
+  // Timeline du contenu & textures
+  const timeline = gsap.timeline({
+    scrollTrigger: {
+      trigger: "#f-canvas",
+      start: "top top",
+      end: "bottom top",
+      scrub: 1,
+      pin: true,
+    },
+  });
+
+  // 3D spin
+  if (groupRef.current) {
+    modelTimeline.to(groupRef.current.rotation, {
+      y: Math.PI * 2,
+      ease: "power1.inOut",
+    });
+  }
+
+  timeline
+    .call(() => setTexture("/videos/feature1.mp4"))
+    .to(".box1", { opacity: 1, y: 0, delay: 0.5 })
+
+    .call(() => setTexture("/videos/feature2.mp4"))
+    .to(".box2", { opacity: 1, y: 0 })
+
+    .call(() => setTexture("/videos/feature3.mp4"))
+    .to(".box3", { opacity: 1, y: 0 })
+
+    .call(() => setTexture("/videos/feature4.mp4"))
+    .to(".box4", { opacity: 1, y: 0 })
+
+    .call(() => setTexture("/videos/feature5.mp4"))
+    .to(".box5", { opacity: 1, y: 0 });
+}, []);
+
+
+
+
+
+
+  return <group ref={groupRef}>
+    <Suspense fallback={<Html><h1 className="text-white uppercase text-3xl">Loading...</h1></Html>}>
+      {/* <MacbookModel /> */}
+      <MacbookModel  scale={isMobile ? 0.05 : 0.08} position={[0, -1, 0]}/>
+    </Suspense> 
+  </group>;
+};
+
+const Features = () => {
+  return (
+    <section id="features">
+      <h2>See it in a new light.</h2>
+      <Canvas id="f-canvas" camera={{ position: [0, 0, 5] }}>
+        <StudioLights />
+        <ambientLight intensity={0.5} />
+        <ModelScroll />
+      </Canvas>
+      <div className="absolute inset-0">
+        {features.map((feature, index) => (
+          <div
+            key={feature.id}
+            className={clsx("box", `box${index + 1}`, feature.styles)}
+          >
+            <img src={feature.icon} alt={feature.highlight} />
+            <p>
+              <span className="text-white">{feature.highlight}</span>
+              {feature.text}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+export default Features;
