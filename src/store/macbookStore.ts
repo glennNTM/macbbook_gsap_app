@@ -1,27 +1,30 @@
 import { create } from "zustand";
+import { DEFAULT_COLOR, type MacbookSize } from "@/constants";
 
 interface MacbookState {
   color: string;
+  size: MacbookSize;
+  /** Index de la fonctionnalité affichée sur l'écran du modèle (section Features). */
+  activeFeature: number;
   setColor: (color: string) => void;
-  scale: number;
-  setScale: (scale: number) => void;
-  texture: string;
-  setTexture: (texture: string) => void;
+  setSize: (size: MacbookSize) => void;
+  setActiveFeature: (index: number) => void;
   reset: () => void;
 }
 
+const initialState = {
+  color: DEFAULT_COLOR,
+  size: "16",
+  activeFeature: 0,
+} satisfies Partial<MacbookState>;
+
 const useMacbookStore = create<MacbookState>()((set) => ({
-  color: "#2e2c2e",
+  ...initialState,
   setColor: (color) => set({ color }),
-
-  scale: 0.08,
-  setScale: (scale) => set({ scale }),
-
-  texture: "/videos/feature-1.mp4",
-  setTexture: (texture) => set({ texture }),
-
-  reset: () =>
-    set({ color: "#2e2e2c", scale: 0.08, texture: "/videos/feature-1.mp4" }),
+  setSize: (size) => set({ size }),
+  setActiveFeature: (activeFeature) =>
+    set((state) => (state.activeFeature === activeFeature ? state : { activeFeature })),
+  reset: () => set(initialState),
 }));
 
 export default useMacbookStore;

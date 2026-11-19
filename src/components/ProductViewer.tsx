@@ -1,70 +1,67 @@
+import { lazy } from "react";
 import clsx from "clsx";
+import { MACBOOK_COLORS, MACBOOK_SIZES } from "@/constants";
 import useMacbookStore from "@/store/macbookStore";
-import { Canvas } from "@react-three/fiber";
-import StudioLights from "./three/StudioLights";
-import ModelSwitcher from "./three/ModelSwitcher";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { SceneFrame } from "./three/SceneFrame";
+
+const ProductScene = lazy(() => import("./three/ProductScene"));
 
 const ProductViewer = () => {
-  const { color, scale, setColor, setScale } = useMacbookStore();
+  const color = useMacbookStore((s) => s.color);
+  const size = useMacbookStore((s) => s.size);
+  const setColor = useMacbookStore((s) => s.setColor);
+  const setSize = useMacbookStore((s) => s.setSize);
 
-  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const colorLabel = MACBOOK_COLORS.find((c) => c.value === color)?.label ?? "";
 
   return (
-    <section id="product-viewer">
-      <h2 className="flex-center mt-8">Explore the MacBook Pro</h2>
+    <section id="product-viewer" aria-labelledby="product-viewer-title">
+      <h2 id="product-viewer-title" className="flex-center mt-8">
+        Explore the MacBook Pro
+      </h2>
+
       <div className="controls">
-        <p className="info">
-          Mabook Pro available in two sizes, 14-inch and 16-inch.
-        </p>
+        <p className="info">MacBook Pro available in two sizes, 14-inch and 16-inch.</p>
 
         <div className="flex-center gap-5 mt-5">
-          <div className="color-control">
-            <div
-              onClick={() => setColor("#adb5db")}
-              className={clsx(
-                "bg-neutral-300",
-                color === "#adb5db" && "active"
-              )}
-            />
-            <div
-              onClick={() => setColor("#2e2c2e")}
-              className={clsx(
-                "bg-neutral-900",
-                color === "#2e2c2e" && "active"
-              )}
-            />
+          <div className="color-control" role="group" aria-label="Color">
+            {MACBOOK_COLORS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                aria-label={option.label}
+                aria-pressed={color === option.value}
+                onClick={() => setColor(option.value)}
+                className={clsx(option.swatch, color === option.value && "active")}
+              />
+            ))}
           </div>
-          <div className="size-control">
-            <div
-              onClick={() => setScale(0.06)}
-              className={clsx(
-                scale === 0.06
-                  ? "bg-white text-black"
-                  : "bg-transparent text-white"
-              )}
-            >
-              <p>14"</p>
-            </div>
-            <div
-              onClick={() => setScale(0.08)}
-              className={clsx(
-                scale === 0.08
-                  ? "bg-white text-black"
-                  : "bg-transparent text-white"
-              )}
-            >
-              <p>16"</p>
-            </div>
+
+          <div className="size-control" role="group" aria-label="Size">
+            {MACBOOK_SIZES.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                aria-label={`${option.value}-inch`}
+                aria-pressed={size === option.value}
+                onClick={() => setSize(option.value)}
+                className={clsx(
+                  size === option.value ? "bg-white text-black" : "bg-transparent text-white",
+                )}
+              >
+                <span aria-hidden="true">{option.label}</span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
-            <Canvas id="canvas" camera={{ position: [0, 2, 5], fov: 50, near: 0.1, far: 100}}>
-        <StudioLights />
 
-        <ModelSwitcher scale={isMobile ? scale - 0.03 : scale} isMobile={isMobile} />
-
-      </Canvas>
+      <SceneFrame
+        id="canvas"
+        label={`3D model of the ${size}-inch MacBook Pro in ${colorLabel}. Drag to rotate.`}
+      >
+        {(active) => <ProductScene active={active} />}
+      </SceneFrame>
     </section>
   );
 };

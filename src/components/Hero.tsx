@@ -1,19 +1,19 @@
-import { useRef } from "react"
+import { AutoplayVideo } from "./AutoplayVideo";
 
 const Hero = () => {
-    const videoRef = useRef<HTMLVideoElement>(null)
-
   return (
-    <section id="hero">
-        <div>
-            <h1>Macbook Pro</h1>
-            <img src="/title.png" alt="Macbook Title" />
-            <video ref={videoRef} src="/videos/hero.mp4" autoPlay muted playsInline />
-            <button>Buy</button>
-            <p>From $1599 or $133/mo for 12 months</p>
-        </div>
+    <section id="hero" aria-labelledby="hero-title">
+      <div>
+        <h1 id="hero-title">MacBook Pro</h1>
+        <img src="/title.png" alt="" width={1397} height={249} fetchPriority="high" />
+        <AutoplayVideo src="/videos/hero.mp4" label="MacBook Pro intro video" preload="auto" />
+        <a href="#product-viewer" className="cta">
+          Buy
+        </a>
+        <p>From $1599 or $133/mo for 12 months</p>
+      </div>
     </section>
-  )
-}
+  );
+};
 
-export default Hero
+export default Hero;

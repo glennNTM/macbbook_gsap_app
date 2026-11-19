@@ -1,128 +1,77 @@
-import { Canvas } from "@react-three/fiber";
-import StudioLights from "./three/StudioLights";
-import { features } from "@/constants";
+import { lazy, useRef } from "react";
 import clsx from "clsx";
-import { useRef } from "react";
-import { Suspense } from "react";
-import { Html, useVideoTexture } from "@react-three/drei";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { MacbookModel } from "./models/MacbookModel";
-import type { Group } from "three";
+import { features } from "@/constants";
+import { gsap, MEDIA, useGSAP } from "@/lib/gsap";
 import useMacbookStore from "@/store/macbookStore";
-import { featureSequence } from "@/constants";
-import { useEffect } from "react";
-import { useGSAP } from "@gsap/react";
-import { gsap } from "gsap";
+import { SceneFrame } from "./three/SceneFrame";
 
-const ModelScroll = () => {
-  const groupRef = useRef<Group>(null);
-  const isMobile = useMediaQuery("(max-width: 1024px)");
-  const setTexture = useMacbookStore((s) => s.setTexture);
-  const color = useMacbookStore((s) => s.color);
-  const texture = useMacbookStore((s) => s.texture);
-  const screen = useVideoTexture(texture);
-
-  useEffect(() => {
-    featureSequence.forEach((feature)=> {
-      const v = document.createElement('video')
-
-      Object.assign(v, {
-        src: feature.videoPath,
-        loop: true,
-        muted: true,
-        playsInline: true,
-        preload: 'auto',
-        crossOrigin: 'anonymous'
-      });
-      v.load()  
-    }) 
-  }
-)
-
-// === Animation du modèle et du contenu ===
-useGSAP(() => {
-  // Timeline du modèle
-  const modelTimeline = gsap.timeline({
-    scrollTrigger: {
-      trigger: "#f-canvas",
-      start: "top center",
-      end: "bottom top",
-      scrub: 1,
-    },
-  });
-
-  // Timeline du contenu & textures
-  const timeline = gsap.timeline({
-    scrollTrigger: {
-      trigger: "#f-canvas",
-      start: "top top",
-      end: "bottom top",
-      scrub: 1,
-      pin: true,
-    },
-  });
-
-  // 3D spin
-  if (groupRef.current) {
-    modelTimeline.to(groupRef.current.rotation, {
-      y: Math.PI * 2,
-      ease: "power1.inOut",
-    });
-  }
-
-  timeline
-    .call(() => setTexture("/videos/feature1.mp4"))
-    .to(".box1", { opacity: 1, y: 0, delay: 0.5 })
-
-    .call(() => setTexture("/videos/feature2.mp4"))
-    .to(".box2", { opacity: 1, y: 0 })
-
-    .call(() => setTexture("/videos/feature3.mp4"))
-    .to(".box3", { opacity: 1, y: 0 })
-
-    .call(() => setTexture("/videos/feature4.mp4"))
-    .to(".box4", { opacity: 1, y: 0 })
-
-    .call(() => setTexture("/videos/feature5.mp4"))
-    .to(".box5", { opacity: 1, y: 0 });
-}, []);
-
-
-
-
-
-
-  return <group ref={groupRef}>
-    <Suspense fallback={<Html><h1 className="text-white uppercase text-3xl">Loading...</h1></Html>}>
-      {/* <MacbookModel /> */}
-      <MacbookModel scale={isMobile ? 0.05 : 0.08} position={[0, -1, 0]} color={color} screen={screen} />
-    </Suspense> 
-  </group>;
-};
+const FeaturesScene = lazy(() => import("./three/FeaturesScene"));
 
 const Features = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const setActiveFeature = useMacbookStore((s) => s.setActiveFeature);
+
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+
+      mm.add(MEDIA.motionOK, () => {
+        const boxes = gsap.utils.toArray<HTMLElement>(".box");
+        // Instant (en secondes de timeline) où chaque fonctionnalité devient active.
+        const starts: number[] = [];
+
+        const timeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: "#f-canvas",
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+            pin: true,
+            // Calculé à partir de la position : fonctionne dans les deux sens de défilement.
+            onUpdate: () => {
+              const time = timeline.time();
+              const index = starts.findLastIndex((start) => time >= start);
+              setActiveFeature(Math.max(0, index));
+            },
+          },
+        });
+
+        boxes.forEach((box, index) => {
+          starts.push(timeline.duration());
+          timeline.fromTo(
+            box,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, delay: index === 0 ? 0.5 : 0 },
+          );
+        });
+
+        return () => setActiveFeature(0);
+      });
+    },
+    { scope: sectionRef },
+  );
+
   return (
-    <section id="features">
-      <h2>See it in a new light.</h2>
-      <Canvas id="f-canvas" camera={{ position: [0, 0, 5] }}>
-        <StudioLights />
-        <ambientLight intensity={0.5} />
-        <ModelScroll />
-      </Canvas>
-      <div className="absolute inset-0">
-        {features.map((feature, index) => (
-          <div
-            key={feature.id}
-            className={clsx("box", `box${index + 1}`, feature.styles)}
-          >
-            <img src={feature.icon} alt={feature.highlight} />
+    <section id="features" ref={sectionRef} aria-labelledby="features-title">
+      <h2 id="features-title">See it in a new light.</h2>
+
+      <SceneFrame
+        id="f-canvas"
+        label="3D MacBook Pro rotating while its screen shows each Apple Intelligence feature."
+      >
+        {(active) => <FeaturesScene active={active} />}
+      </SceneFrame>
+
+      <ul className="absolute inset-0">
+        {features.map((feature) => (
+          <li key={feature.id} className={clsx("box", feature.styles)}>
+            <img src={feature.icon} alt="" width={52} height={56} />
             <p>
-              <span className="text-white">{feature.highlight}</span>
-              {feature.text}
+              <span className="text-white">{feature.highlight}</span> {feature.text}
             </p>
-          </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   );
 };

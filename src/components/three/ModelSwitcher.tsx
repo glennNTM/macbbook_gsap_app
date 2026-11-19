@@ -1,86 +1,101 @@
 import { PresentationControls, useTexture } from "@react-three/drei";
 import { useRef } from "react";
-import { type Group, type Mesh, SRGBColorSpace } from "three";
-import { gsap } from "gsap";
-import { useGSAP } from "@gsap/react";
-import { MacbookModel } from "../models/MacbookModel";
+import { type Group, type Material, type Mesh, SRGBColorSpace } from "three";
+import { MACBOOK_SIZES, type MacbookSize } from "@/constants";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { gsap, MEDIA, useGSAP } from "@/lib/gsap";
 import useMacbookStore from "@/store/macbookStore";
+import { MacbookModel } from "../models/MacbookModel";
 
 const ANIMATION_DURATION = 1;
 const OFFSET_DISTANCE = 5;
 
-const fadeMeshes = (group: Group | null, opacity: number) => {
-  if (!group) return;
-
+const collectMaterials = (group: Group): Material[] => {
+  const materials = new Set<Material>();
   group.traverse((child) => {
-    if ((child as Mesh).isMesh) {
-      const { material } = child as Mesh;
-      const list = Array.isArray(material) ? material : [material];
-      list.forEach((m) => {
-        m.transparent = true;
-        gsap.to(m, { opacity, duration: ANIMATION_DURATION });
-      });
-    }
+    const { isMesh, material } = child as Mesh;
+    if (!isMesh) return;
+    (Array.isArray(material) ? material : [material]).forEach((m) => materials.add(m));
+  });
+  return [...materials];
+};
+
+/** Fait glisser et apparaître/disparaître un modèle. */
+const transitionModel = (group: Group, x: number, visible: boolean, duration: number) => {
+  const opacity = visible ? 1 : 0;
+  const materials = collectMaterials(group);
+  const vars = { duration, ease: "power2.inOut", overwrite: "auto" } as const;
+
+  group.visible = true;
+  gsap.to(group.position, { ...vars, x });
+  gsap.to(materials, {
+    ...vars,
+    opacity,
+    onStart: () => materials.forEach((m) => (m.transparent = true)),
+    onComplete: () => {
+      materials.forEach((m) => (m.transparent = !visible));
+      // Un modèle invisible n'a plus besoin d'être dessiné.
+      group.visible = visible;
+    },
   });
 };
 
-const moveGroup = (group: Group | null, x: number) => {
-  if (!group) return;
-
-  gsap.to(group.position, { x, duration: ANIMATION_DURATION });
+const controlsConfig = {
+  snap: true,
+  speed: 1,
+  zoom: 1,
+  azimuth: [-Infinity, Infinity] as [number, number],
+  config: { mass: 1, tension: 0, friction: 26 },
 };
 
 interface ModelSwitcherProps {
-  scale: number;
+  size: MacbookSize;
   isMobile: boolean;
 }
 
-const ModelSwitcher = ({ scale, isMobile }: ModelSwitcherProps) => {
+const ModelSwitcher = ({ size, isMobile }: ModelSwitcherProps) => {
   const smallMacbookRef = useRef<Group>(null);
   const largeMacbookRef = useRef<Group>(null);
+  const isFirstRun = useRef(true);
   const color = useMacbookStore((s) => s.color);
+  const reduceMotion = useMediaQuery(MEDIA.reduceMotion);
 
   const screen = useTexture("/screen.png", (t) => {
     t.colorSpace = SRGBColorSpace;
   });
 
-  const showLargeMacbook = scale === 0.08 || scale === 0.05;
+  useGSAP(
+    () => {
+      const small = smallMacbookRef.current;
+      const large = largeMacbookRef.current;
+      if (!small || !large) return;
 
-  useGSAP(() => {
-    if (showLargeMacbook) {
-      moveGroup(smallMacbookRef.current, -OFFSET_DISTANCE);
-      moveGroup(largeMacbookRef.current, 0);
+      // Pas d'animation au premier rendu ni en mouvement réduit.
+      const duration = isFirstRun.current || reduceMotion ? 0 : ANIMATION_DURATION;
+      isFirstRun.current = false;
 
-      fadeMeshes(smallMacbookRef.current, 0);
-      fadeMeshes(largeMacbookRef.current, 1);
-    } else {
-      moveGroup(smallMacbookRef.current, 0);
-      moveGroup(largeMacbookRef.current, OFFSET_DISTANCE);
+      const showLarge = size === "16";
+      transitionModel(small, showLarge ? -OFFSET_DISTANCE : 0, !showLarge, duration);
+      transitionModel(large, showLarge ? 0 : OFFSET_DISTANCE, showLarge, duration);
+    },
+    { dependencies: [size, reduceMotion] },
+  );
 
-      fadeMeshes(smallMacbookRef.current, 1);
-      fadeMeshes(largeMacbookRef.current, 0);
-    }
-  }, [scale]);
-
-  const controlsConfig = {
-    snap: true,
-    speed: 1,
-    zoom: 1,
-    azimuth: [-Infinity, Infinity] as [number, number],
-    config: { mass: 1, tension: 0, friction: 26 },
-  };
+  const [size14, size16] = MACBOOK_SIZES;
+  const scaleOf = (option: (typeof MACBOOK_SIZES)[number] | undefined) =>
+    isMobile ? (option?.mobileScale ?? 0) : (option?.scale ?? 0);
 
   return (
     <>
       <PresentationControls {...controlsConfig}>
         <group ref={largeMacbookRef}>
-          <MacbookModel scale={isMobile ? 0.05 : 0.08} color={color} screen={screen} />
+          <MacbookModel scale={scaleOf(size16)} color={color} screen={screen} />
         </group>
       </PresentationControls>
 
       <PresentationControls {...controlsConfig}>
         <group ref={smallMacbookRef}>
-          <MacbookModel scale={isMobile ? 0.03 : 0.06} color={color} screen={screen} />
+          <MacbookModel scale={scaleOf(size14)} color={color} screen={screen} />
         </group>
       </PresentationControls>
     </>

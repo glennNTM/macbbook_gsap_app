@@ -1,30 +1,29 @@
 import NavBar from "./components/NavBar";
 import Hero from "./components/Hero";
 import ProductViewer from "./components/ProductViewer";
-import {ScrollTrigger} from 'gsap/ScrollTrigger';
-import { gsap } from "gsap";
 import Showcase from "./components/Showcase";
-import Footer from "./components/Footer";
 import Performance from "./components/Performance";
 import Features from "./components/Features";
 import Highlights from "./components/Highlights";
+import Footer from "./components/Footer";
 
-
-
-gsap.registerPlugin(ScrollTrigger);
- 
 const App = () => {
   return (
-    <main>
+    <>
+      <a href="#main" className="skip-link">
+        Skip to content
+      </a>
       <NavBar />
-      <Hero />
-      <ProductViewer />
-      <Showcase />
-      <Performance />
-      <Features />
-      <Highlights />
+      <main id="main" tabIndex={-1}>
+        <Hero />
+        <ProductViewer />
+        <Showcase />
+        <Performance />
+        <Features />
+        <Highlights />
+      </main>
       <Footer />
-    </main>
+    </>
   );
 };
 
