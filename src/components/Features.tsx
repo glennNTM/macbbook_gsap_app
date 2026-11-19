@@ -1,22 +1,26 @@
 import { Canvas } from "@react-three/fiber";
-import StudioLights from "./three/StudioLights.jsx";
-import { features } from "../../constants";
+import StudioLights from "./three/StudioLights";
+import { features } from "@/constants";
 import clsx from "clsx";
 import { useRef } from "react";
 import { Suspense } from "react";
-import { Html } from "@react-three/drei";
-import { useMediaQuery } from "react-responsive";
-import MacbookModel from "./models/Macbook.jsx";
-import useMacbookStore from "../../store/index.js";
-import { featureSequence } from "../../constants";
+import { Html, useVideoTexture } from "@react-three/drei";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { MacbookModel } from "./models/MacbookModel";
+import type { Group } from "three";
+import useMacbookStore from "@/store/macbookStore";
+import { featureSequence } from "@/constants";
 import { useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 
 const ModelScroll = () => {
-  const groupRef = useRef(null);
-  const isMobile = useMediaQuery({ query: "(max-width: 1024px)" });
-  const { setTexture } = useMacbookStore()
+  const groupRef = useRef<Group>(null);
+  const isMobile = useMediaQuery("(max-width: 1024px)");
+  const setTexture = useMacbookStore((s) => s.setTexture);
+  const color = useMacbookStore((s) => s.color);
+  const texture = useMacbookStore((s) => s.texture);
+  const screen = useVideoTexture(texture);
 
   useEffect(() => {
     featureSequence.forEach((feature)=> {
@@ -91,7 +95,7 @@ useGSAP(() => {
   return <group ref={groupRef}>
     <Suspense fallback={<Html><h1 className="text-white uppercase text-3xl">Loading...</h1></Html>}>
       {/* <MacbookModel /> */}
-      <MacbookModel  scale={isMobile ? 0.05 : 0.08} position={[0, -1, 0]}/>
+      <MacbookModel scale={isMobile ? 0.05 : 0.08} position={[0, -1, 0]} color={color} screen={screen} />
     </Suspense> 
   </group>;
 };

@@ -1,11 +1,11 @@
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
-import { performanceImages, performanceImgPositions } from "../../constants";
-import {useMediaQuery} from "react-responsive";
+import { performanceImages, performanceImgPositions } from "@/constants";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const Performance = () => {
-    const isMobile = useMediaQuery({ query: "(max-width: 1024px)" });
+    const isMobile = useMediaQuery("(max-width: 1024px)");
     const sectionRef = useRef(null);
 
     useGSAP(
@@ -50,7 +50,7 @@ const Performance = () => {
                 if (item.id === "p5") return;
 
                 const selector = `.${item.id}`;
-                const vars = {};
+                const vars: gsap.TweenVars = {};
 
                 if (typeof item.left === "number") vars.left = `${item.left}%`;
                 if (typeof item.right === "number") vars.right = `${item.right}%`;

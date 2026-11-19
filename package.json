@@ -6,9 +6,9 @@
   "packageManager": "bun@1.4.4",
   "scripts": {
     "dev": "bun --bun vite",
-    "build": "tsc --noEmit && bun --bun vite build",
+    "build": "tsc -b && bun --bun vite build",
     "preview": "bun --bun vite preview",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -b",
     "lint": "eslint .",
     "check": "bun run typecheck && bun run lint"
   },

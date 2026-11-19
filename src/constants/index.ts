@@ -1,4 +1,41 @@
-const navLinks = [
+export interface NavLink {
+    label: string;
+}
+
+export interface PerformanceImage {
+    id: string;
+    src: string;
+    alt?: string;
+}
+
+export interface PerformanceImgPosition {
+    id: string;
+    left?: number;
+    right?: number;
+    bottom?: number;
+    transform?: string;
+}
+
+export interface Feature {
+    id: number;
+    icon: string;
+    highlight: string;
+    text: string;
+    styles: string;
+}
+
+export interface FeatureStep {
+    videoPath: string;
+    boxClass: string;
+    delay: number;
+}
+
+export interface FooterLink {
+    label: string;
+    link: string;
+}
+
+const navLinks: NavLink[] = [
     { label: "Store" },
     { label: "Mac" },
     { label: "iPhone" },
@@ -7,7 +44,7 @@ const navLinks = [
     { label: "AirPods" },
 ];
 
-const noChangeParts = [
+const noChangeParts: string[] = [
     "Object_84",
     "Object_37",
     "Object_34",
@@ -26,7 +63,7 @@ const noChangeParts = [
     "Object_10",
 ];
 
-const performanceImages = [
+const performanceImages: PerformanceImage[] = [
     { id: "p1", src: "/performance1.png" },
     { id: "p2", src: "/performance2.png" },
     { id: "p3", src: "/performance3.png" },
@@ -36,7 +73,7 @@ const performanceImages = [
     { id: "p7", src: "/performance7.png" },
 ];
 
-const performanceImgPositions = [
+const performanceImgPositions: PerformanceImgPosition[] = [
     {
         id: "p1",
         left: 5,
@@ -74,7 +111,7 @@ const performanceImgPositions = [
     },
 ];
 
-const features = [
+const features: Feature[] = [
     {
         id: 1,
         icon: "/feature-icon1.svg",
@@ -112,7 +149,7 @@ const features = [
     },
 ];
 
-const featureSequence = [
+const featureSequence: FeatureStep[] = [
     { videoPath: "/videos/feature-1.mp4", boxClass: ".box1", delay: 1 },
     { videoPath: "/videos/feature-2.mp4", boxClass: ".box2", delay: 0 },
     { videoPath: "/videos/feature-3.mp4", boxClass: ".box3", delay: 0 },
@@ -120,7 +157,7 @@ const featureSequence = [
     { videoPath: "/videos/feature-5.mp4", boxClass: ".box5", delay: 0 },
 ];
 
-const footerLinks = [
+const footerLinks: FooterLink[] = [
     { label: "Privacy Policy", link: "#" },
     { label: "Terms of Use", link: "#" },
     { label: "Sales Policy", link: "#" },

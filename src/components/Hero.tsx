@@ -1,7 +1,7 @@
 import { useRef } from "react"
 
 const Hero = () => {
-    const videoRef= useRef()
+    const videoRef = useRef<HTMLVideoElement>(null)
 
   return (
     <section id="hero">

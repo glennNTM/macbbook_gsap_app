@@ -1,14 +1,14 @@
 import clsx from "clsx";
-import useMabookStore from "../../store";
+import useMacbookStore from "@/store/macbookStore";
 import { Canvas } from "@react-three/fiber";
 import StudioLights from "./three/StudioLights";
 import ModelSwitcher from "./three/ModelSwitcher";
-import { useMediaQuery } from "react-responsive";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const ProductViewer = () => {
-  const { color, scale, setColor, setScale } = useMabookStore();
+  const { color, scale, setColor, setScale } = useMacbookStore();
 
-  const isMobile = useMediaQuery({ query: "(max-width: 1024px)" });
+  const isMobile = useMediaQuery("(max-width: 1024px)");
 
   return (
     <section id="product-viewer">
