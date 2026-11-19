@@ -31,7 +31,10 @@ const Showcase = () => {
   return (
     <section id="showcase" ref={sectionRef} aria-labelledby="showcase-title">
       <div className="media">
-        <AutoplayVideo src="/videos/game.mp4" label="gameplay video" loop preload="metadata" />
+        <AutoplayVideo src="/videos/game.mp4" label="gameplay video"
+          poster="/videos/game.poster.webp"
+          loop
+          preload="metadata" />
         <div className="mask" aria-hidden="true">
           <img src="/mask-logo.svg" alt="" width={1920} height={1080} />
         </div>

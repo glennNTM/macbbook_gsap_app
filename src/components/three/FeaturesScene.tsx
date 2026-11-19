@@ -42,7 +42,7 @@ function VideoScreenModel({ playing, scale }: { playing: boolean; scale: number 
 /** Écran fixe pour prefers-reduced-motion : aucune vidéo lue. */
 function StaticScreenModel({ scale }: { scale: number }) {
   const color = useMacbookStore((s) => s.color);
-  const screen = useTexture("/screen.png", (t) => {
+  const screen = useTexture("/screen.webp", (t) => {
     t.colorSpace = SRGBColorSpace;
   });
 

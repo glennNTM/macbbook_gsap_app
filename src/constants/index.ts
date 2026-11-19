@@ -90,13 +90,13 @@ const noChangeParts: string[] = [
 ];
 
 const performanceImages: PerformanceImage[] = [
-    { id: "p1", src: "/performance1.png", width: 454, height: 305 },
-    { id: "p2", src: "/performance2.png", width: 712, height: 464 },
-    { id: "p3", src: "/performance3.png", width: 904, height: 586 },
-    { id: "p4", src: "/performance4.png", width: 1008, height: 652 },
-    { id: "p5", src: "/performance5.jpg", width: 1408, height: 864 },
-    { id: "p6", src: "/performance6.png", width: 356, height: 244 },
-    { id: "p7", src: "/performance7.png", width: 1064, height: 684 },
+    { id: "p1", src: "/performance1.webp", width: 454, height: 305 },
+    { id: "p2", src: "/performance2.webp", width: 712, height: 464 },
+    { id: "p3", src: "/performance3.webp", width: 904, height: 586 },
+    { id: "p4", src: "/performance4.webp", width: 1008, height: 652 },
+    { id: "p5", src: "/performance5.webp", width: 1408, height: 864 },
+    { id: "p6", src: "/performance6.webp", width: 356, height: 244 },
+    { id: "p7", src: "/performance7.webp", width: 1064, height: 684 },
 ];
 
 const performanceImgPositions: PerformanceImgPosition[] = [

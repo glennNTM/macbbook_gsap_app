@@ -60,7 +60,7 @@ const ModelSwitcher = ({ size, isMobile }: ModelSwitcherProps) => {
   const color = useMacbookStore((s) => s.color);
   const reduceMotion = useMediaQuery(MEDIA.reduceMotion);
 
-  const screen = useTexture("/screen.png", (t) => {
+  const screen = useTexture("/screen.webp", (t) => {
     t.colorSpace = SRGBColorSpace;
   });
 

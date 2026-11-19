@@ -11,7 +11,7 @@ import { useEffect, useMemo } from "react";
 import { Color, type Material, type Mesh, type Texture } from "three";
 import { noChangeParts } from "@/constants";
 
-export const MACBOOK_MODEL_URL = "/models/macbook-transformed.glb";
+export const MACBOOK_MODEL_URL = "/models/macbook.glb";
 
 /** Paires [nœud, matériau] issues de gltfjsx. */
 const PARTS = [
